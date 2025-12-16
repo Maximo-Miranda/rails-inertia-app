@@ -307,8 +307,10 @@ class PostsTest < ApplicationSystemTestCase
     assert_current_path(/per_page=5/, wait: 5)
 
     # Verificar que la tabla muestra paginación
+    # Y que muestra los datos correctos
     within('[data-testid="posts-table"]') do
-      assert_selector '.v-data-table-footer__pagination'
+      assert_selector "tbody tr", count: 5, wait: 5
+      assert_selector ".v-data-table-footer__pagination"
     end
   end
 

@@ -295,6 +295,11 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue";
 
+// Esta página no usa el layout por defecto
+// defineOptions({
+//     layout: null,
+// });
+
 const form = reactive({
     name: "",
     email: "",

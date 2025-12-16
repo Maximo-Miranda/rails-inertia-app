@@ -1,218 +1,200 @@
 <template>
-    <v-app>
-        <v-main>
-            <v-container>
-                <!-- Header -->
-                <v-row class="mb-4">
-                    <v-col cols="12">
-                        <div class="d-flex justify-space-between align-center">
-                            <h1 data-testid="page-title">Posts</h1>
-                            <v-btn
-                                color="primary"
-                                data-testid="btn-new-post"
-                                @click="navigateToNew"
+    <v-container>
+        <!-- Header -->
+        <v-row class="mb-4">
+            <v-col cols="12">
+                <div class="d-flex justify-space-between align-center">
+                    <h1 data-testid="page-title">Posts</h1>
+                    <v-btn
+                        color="primary"
+                        data-testid="btn-new-post"
+                        @click="navigateToNew"
+                    >
+                        <v-icon left>mdi-plus</v-icon>
+                        Nuevo Post
+                    </v-btn>
+                </div>
+            </v-col>
+        </v-row>
+
+        <!-- Flash Messages -->
+        <v-row v-if="$page.props.flash?.notice">
+            <v-col cols="12">
+                <v-alert type="success" dismissible data-testid="flash-notice">
+                    {{ $page.props.flash.notice }}
+                </v-alert>
+            </v-col>
+        </v-row>
+
+        <!-- Filters -->
+        <v-row class="mb-4">
+            <v-col cols="12" md="6">
+                <v-text-field
+                    v-model="localFilters.search"
+                    label="Buscar por título"
+                    prepend-inner-icon="mdi-magnify"
+                    variant="outlined"
+                    clearable
+                    data-testid="search-input"
+                    @update:model-value="debouncedSearch"
+                ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="6">
+                <v-select
+                    v-model="localFilters.status"
+                    :items="statusOptions"
+                    item-title="text"
+                    item-value="value"
+                    label="Estado"
+                    variant="outlined"
+                    data-testid="status-filter"
+                    @update:model-value="applyFilters"
+                ></v-select>
+            </v-col>
+        </v-row>
+
+        <!-- Data Table Server Side -->
+        <v-row>
+            <v-col cols="12">
+                <v-card>
+                    <v-data-table-server
+                        v-model:items-per-page="tableOptions.itemsPerPage"
+                        v-model:page="tableOptions.page"
+                        v-model:sort-by="tableOptions.sortBy"
+                        :headers="headers"
+                        :items="posts"
+                        :items-length="pagination.total"
+                        :loading="loading"
+                        :items-per-page-options="perPageOptions"
+                        data-testid="posts-table"
+                        class="elevation-1"
+                        @update:options="onOptionsUpdate"
+                    >
+                        <!-- Status Column -->
+                        <template v-slot:item.status="{ item }">
+                            <v-chip
+                                :color="item.published ? 'success' : 'warning'"
+                                size="small"
+                                :data-testid="`post-status-${item.id}`"
                             >
-                                <v-icon left>mdi-plus</v-icon>
-                                Nuevo Post
-                            </v-btn>
-                        </div>
-                    </v-col>
-                </v-row>
+                                {{ item.published ? "Publicado" : "Borrador" }}
+                            </v-chip>
+                        </template>
 
-                <!-- Flash Messages -->
-                <v-row v-if="$page.props.flash?.notice">
-                    <v-col cols="12">
-                        <v-alert
-                            type="success"
-                            dismissible
-                            data-testid="flash-notice"
-                        >
-                            {{ $page.props.flash.notice }}
-                        </v-alert>
-                    </v-col>
-                </v-row>
+                        <!-- Date Column -->
+                        <template v-slot:item.created_at="{ item }">
+                            {{ formatDate(item.created_at) }}
+                        </template>
 
-                <!-- Filters -->
-                <v-row class="mb-4">
-                    <v-col cols="12" md="6">
-                        <v-text-field
-                            v-model="localFilters.search"
-                            label="Buscar por título"
-                            prepend-inner-icon="mdi-magnify"
-                            variant="outlined"
-                            clearable
-                            data-testid="search-input"
-                            @update:model-value="debouncedSearch"
-                        ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-select
-                            v-model="localFilters.status"
-                            :items="statusOptions"
-                            item-title="text"
-                            item-value="value"
-                            label="Estado"
-                            variant="outlined"
-                            data-testid="status-filter"
-                            @update:model-value="applyFilters"
-                        ></v-select>
-                    </v-col>
-                </v-row>
-
-                <!-- Data Table Server Side -->
-                <v-row>
-                    <v-col cols="12">
-                        <v-card>
-                            <v-data-table-server
-                                v-model:items-per-page="
-                                    tableOptions.itemsPerPage
-                                "
-                                v-model:page="tableOptions.page"
-                                v-model:sort-by="tableOptions.sortBy"
-                                :headers="headers"
-                                :items="posts"
-                                :items-length="pagination.total"
-                                :loading="loading"
-                                :items-per-page-options="perPageOptions"
-                                data-testid="posts-table"
-                                class="elevation-1"
-                                @update:options="onOptionsUpdate"
-                            >
-                                <!-- Status Column -->
-                                <template v-slot:item.status="{ item }">
-                                    <v-chip
-                                        :color="
-                                            item.published
-                                                ? 'success'
-                                                : 'warning'
-                                        "
-                                        size="small"
-                                        :data-testid="`post-status-${item.id}`"
-                                    >
-                                        {{
-                                            item.published
-                                                ? "Publicado"
-                                                : "Borrador"
-                                        }}
-                                    </v-chip>
-                                </template>
-
-                                <!-- Date Column -->
-                                <template v-slot:item.created_at="{ item }">
-                                    {{ formatDate(item.created_at) }}
-                                </template>
-
-                                <!-- Actions Column -->
-                                <template v-slot:item.actions="{ item }">
-                                    <v-btn
-                                        icon
-                                        size="small"
-                                        variant="text"
-                                        color="primary"
-                                        :data-testid="`btn-view-${item.id}`"
-                                        @click="navigateToShow(item.id)"
-                                    >
-                                        <v-icon>mdi-eye</v-icon>
-                                    </v-btn>
-                                    <v-btn
-                                        icon
-                                        size="small"
-                                        variant="text"
-                                        color="info"
-                                        :data-testid="`btn-edit-${item.id}`"
-                                        @click="navigateToEdit(item.id)"
-                                    >
-                                        <v-icon>mdi-pencil</v-icon>
-                                    </v-btn>
-                                    <v-btn
-                                        v-if="!item.published"
-                                        icon
-                                        size="small"
-                                        variant="text"
-                                        color="success"
-                                        :data-testid="`btn-publish-${item.id}`"
-                                        @click="publishPost(item.id)"
-                                    >
-                                        <v-icon>mdi-publish</v-icon>
-                                    </v-btn>
-                                    <v-btn
-                                        v-else
-                                        icon
-                                        size="small"
-                                        variant="text"
-                                        color="warning"
-                                        :data-testid="`btn-unpublish-${item.id}`"
-                                        @click="unpublishPost(item.id)"
-                                    >
-                                        <v-icon>mdi-publish-off</v-icon>
-                                    </v-btn>
-                                    <v-btn
-                                        icon
-                                        size="small"
-                                        variant="text"
-                                        color="error"
-                                        :data-testid="`btn-delete-${item.id}`"
-                                        @click="confirmDelete(item)"
-                                    >
-                                        <v-icon>mdi-delete</v-icon>
-                                    </v-btn>
-                                </template>
-
-                                <!-- Empty State -->
-                                <template v-slot:no-data>
-                                    <div
-                                        class="text-center pa-4"
-                                        data-testid="empty-state"
-                                    >
-                                        <v-icon size="64" color="grey"
-                                            >mdi-post-outline</v-icon
-                                        >
-                                        <p class="text-h6 mt-2">No hay posts</p>
-                                        <p class="text-body-2 text-grey">
-                                            Crea tu primer post para comenzar
-                                        </p>
-                                    </div>
-                                </template>
-                            </v-data-table-server>
-                        </v-card>
-                    </v-col>
-                </v-row>
-
-                <!-- Delete Confirmation Dialog -->
-                <v-dialog v-model="deleteDialog" max-width="400">
-                    <v-card>
-                        <v-card-title data-testid="delete-dialog-title">
-                            Confirmar eliminación
-                        </v-card-title>
-                        <v-card-text>
-                            ¿Estás seguro de que deseas eliminar el post "{{
-                                postToDelete?.title
-                            }}"? Esta acción no se puede deshacer.
-                        </v-card-text>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
+                        <!-- Actions Column -->
+                        <template v-slot:item.actions="{ item }">
                             <v-btn
+                                icon
+                                size="small"
                                 variant="text"
-                                data-testid="btn-cancel-delete"
-                                @click="deleteDialog = false"
+                                color="primary"
+                                :data-testid="`btn-view-${item.id}`"
+                                @click="navigateToShow(item.id)"
                             >
-                                Cancelar
+                                <v-icon>mdi-eye</v-icon>
                             </v-btn>
                             <v-btn
-                                color="error"
-                                variant="flat"
-                                data-testid="btn-confirm-delete"
-                                :loading="deleting"
-                                @click="deletePost"
+                                icon
+                                size="small"
+                                variant="text"
+                                color="info"
+                                :data-testid="`btn-edit-${item.id}`"
+                                @click="navigateToEdit(item.id)"
                             >
-                                Eliminar
+                                <v-icon>mdi-pencil</v-icon>
                             </v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-            </v-container>
-        </v-main>
-    </v-app>
+                            <v-btn
+                                v-if="!item.published"
+                                icon
+                                size="small"
+                                variant="text"
+                                color="success"
+                                :data-testid="`btn-publish-${item.id}`"
+                                @click="publishPost(item.id)"
+                            >
+                                <v-icon>mdi-publish</v-icon>
+                            </v-btn>
+                            <v-btn
+                                v-else
+                                icon
+                                size="small"
+                                variant="text"
+                                color="warning"
+                                :data-testid="`btn-unpublish-${item.id}`"
+                                @click="unpublishPost(item.id)"
+                            >
+                                <v-icon>mdi-publish-off</v-icon>
+                            </v-btn>
+                            <v-btn
+                                icon
+                                size="small"
+                                variant="text"
+                                color="error"
+                                :data-testid="`btn-delete-${item.id}`"
+                                @click="confirmDelete(item)"
+                            >
+                                <v-icon>mdi-delete</v-icon>
+                            </v-btn>
+                        </template>
+
+                        <!-- Empty State -->
+                        <template v-slot:no-data>
+                            <div
+                                class="text-center pa-4"
+                                data-testid="empty-state"
+                            >
+                                <v-icon size="64" color="grey"
+                                    >mdi-post-outline</v-icon
+                                >
+                                <p class="text-h6 mt-2">No hay posts</p>
+                                <p class="text-body-2 text-grey">
+                                    Crea tu primer post para comenzar
+                                </p>
+                            </div>
+                        </template>
+                    </v-data-table-server>
+                </v-card>
+            </v-col>
+        </v-row>
+
+        <!-- Delete Confirmation Dialog -->
+        <v-dialog v-model="deleteDialog" max-width="400">
+            <v-card>
+                <v-card-title data-testid="delete-dialog-title">
+                    Confirmar eliminación
+                </v-card-title>
+                <v-card-text>
+                    ¿Estás seguro de que deseas eliminar el post "{{
+                        postToDelete?.title
+                    }}"? Esta acción no se puede deshacer.
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        variant="text"
+                        data-testid="btn-cancel-delete"
+                        @click="deleteDialog = false"
+                    >
+                        Cancelar
+                    </v-btn>
+                    <v-btn
+                        color="error"
+                        variant="flat"
+                        data-testid="btn-confirm-delete"
+                        :loading="deleting"
+                        @click="deletePost"
+                    >
+                        Eliminar
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+    </v-container>
 </template>
 
 <script setup lang="ts">

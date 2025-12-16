@@ -1,6 +1,7 @@
 import { createInertiaApp } from "@inertiajs/vue3";
 import { createApp, DefineComponent, h } from "vue";
 import vuetify from "../plugins/vuetify";
+import AppLayout from "../layouts/AppLayout.vue";
 
 createInertiaApp({
   // Set default page title
@@ -25,8 +26,13 @@ createInertiaApp({
     // To use a default layout, import the Layout component
     // and use the following lines.
     // see https://inertia-rails.dev/guide/pages#default-layouts
-    //
-    // page.default.layout = page.default.layout || Layout
+
+    // Solo asignar layout si no está definido (undefined)
+    // Si es null, significa que explícitamente no quiere layout
+    // page.default.layout = page.default.layout || AppLayout;
+    if (page.default.layout === undefined) {
+      page.default.layout = AppLayout;
+    }
 
     return page;
   },
