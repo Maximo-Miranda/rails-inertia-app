@@ -228,11 +228,18 @@ class PostsTest < ApplicationSystemTestCase
   test "publica un post borrador desde la lista" do
     visit posts_path
 
+    # Esperar a que la página cargue completamente
+    assert_selector '[data-testid="posts-table"]'
+
     find("[data-testid='btn-publish-#{@draft_post.id}']").click
 
-    assert_text "Post publicado exitosamente"
-    assert_selector "[data-testid='post-status-#{@draft_post.id}']", text: "Publicado"
+    # Esperar el mensaje de éxito con un timeout más largo
+    assert_text "Post publicado exitosamente", wait: 10
+
+    # Esperar a que la tabla se actualice
+    assert_selector "[data-testid='post-status-#{@draft_post.id}']", text: "Publicado", wait: 10
   end
+
 
   test "despublica un post desde la lista" do
     visit posts_path

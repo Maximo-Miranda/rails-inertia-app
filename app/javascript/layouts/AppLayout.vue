@@ -28,12 +28,7 @@
         </v-app-bar>
 
         <!-- Navigation Drawer (Menú lateral) -->
-        <v-navigation-drawer
-            v-model="drawer"
-            app
-            temporary
-            data-testid="nav-drawer"
-        >
+        <v-navigation-drawer v-model="drawer" app data-testid="nav-drawer">
             <!-- Header del drawer -->
             <v-list>
                 <v-list-item
