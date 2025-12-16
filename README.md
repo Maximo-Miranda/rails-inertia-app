@@ -1,24 +1,22 @@
-# README
+# Rails + Inertia.js + Vue 3
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Aplicación web con Ruby on Rails 8, Inertia.js, Vue 3 y Vuetify.
 
-Things you may want to cover:
+## Requisitos
 
-* Ruby version
+- Ruby 3.4.7
+- Node.js/Bun
+- SQLite3
 
-* System dependencies
+## Instalación
 
-* Configuration
+```bash
+# Instalar dependencias
+bundle install
+bun install  # o npm install
 
-* Database creation
+# Configurar base de datos
+bin/rails db:setup
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+# Instalar navegadores para tests
+bunx playwright install firefox
