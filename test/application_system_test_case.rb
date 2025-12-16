@@ -7,7 +7,7 @@ Capybara.register_driver(:playwright) do |app|
   Capybara::Playwright::Driver.new(app,
     browser_type: :firefox,
     headless: ENV.fetch("HEADLESS", "true") == "true",
-    playwright_cli_executable_path: './node_modules/.bin/playwright'
+    playwright_cli_executable_path: "./node_modules/.bin/playwright"
   )
 end
 

@@ -96,7 +96,7 @@ class NavigationDrawerTest < ApplicationSystemTestCase
     # El item de Posts debería estar activo
     within('[data-testid="nav-drawer"]') do
       posts_item = find('[data-testid="nav-item-posts"]')
-      assert posts_item[:class].include?('v-list-item--active'), "El item de Posts debería estar activo"
+      assert posts_item[:class].include?("v-list-item--active"), "El item de Posts debería estar activo"
     end
   end
 
@@ -127,7 +127,7 @@ class NavigationDrawerTest < ApplicationSystemTestCase
     find('[data-testid="input-body"]').fill_in with: "Este post fue creado para probar la funcionalidad del navigation drawer en el sistema."
 
     # 9. Marcar como publicado
-    find('label', text: "Publicar inmediatamente").click
+    find("label", text: "Publicar inmediatamente").click
 
     # 10. Enviar el formulario
     find('[data-testid="btn-submit"]').click

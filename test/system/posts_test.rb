@@ -83,7 +83,7 @@ class PostsTest < ApplicationSystemTestCase
     find('[data-testid="input-title"]').fill_in with: "Post publicado inmediatamente"
     find('[data-testid="input-body"]').fill_in with: "Este post se publicará inmediatamente al crearse."
 
-    find('label', text: "Publicar inmediatamente").click
+    find("label", text: "Publicar inmediatamente").click
 
     find('[data-testid="btn-submit"]').click
 
@@ -297,11 +297,11 @@ class PostsTest < ApplicationSystemTestCase
 
     # El v-data-table-server tiene su propio selector de items por página integrado
     within('[data-testid="posts-table"]') do
-      find('.v-data-table-footer__items-per-page .v-select').click
+      find(".v-data-table-footer__items-per-page .v-select").click
     end
 
     # Seleccionar 5 items por página del menú desplegable
-    first('.v-overlay .v-list-item', text: /^5$/).click
+    first(".v-overlay .v-list-item", text: /^5$/).click
 
     # Esperar a que la URL se actualice con el parámetro per_page
     assert_current_path(/per_page=5/, wait: 5)
@@ -328,7 +328,7 @@ class PostsTest < ApplicationSystemTestCase
 
     # Verificar que estamos en la primera página y hacer clic en siguiente
     within('[data-testid="posts-table"]') do
-      assert_selector '.v-data-table-footer__pagination'
+      assert_selector ".v-data-table-footer__pagination"
       sleep 2
       find('.v-data-table-footer__pagination .v-btn[aria-label="Next page"]').click
     end
@@ -344,7 +344,7 @@ class PostsTest < ApplicationSystemTestCase
 
     # Hacer clic en el header de la columna "Título" para ordenar
     within('[data-testid="posts-table"]') do
-      find('th .v-data-table-header__content', text: 'Título').click
+      find("th .v-data-table-header__content", text: "Título").click
     end
 
     # Esperar a que la URL contenga el parámetro de ordenamiento
@@ -356,7 +356,7 @@ class PostsTest < ApplicationSystemTestCase
 
     # Hacer clic en el header de la columna "Fecha" para ordenar
     within('[data-testid="posts-table"]') do
-      find('th .v-data-table-header__content', text: 'Fecha').click
+      find("th .v-data-table-header__content", text: "Fecha").click
     end
 
     # Esperar a que la URL contenga el parámetro de ordenamiento
@@ -376,8 +376,8 @@ class PostsTest < ApplicationSystemTestCase
 
     # Verificar que el footer de paginación existe
     within('[data-testid="posts-table"]') do
-      assert_selector '.v-data-table-footer'
-      assert_selector '.v-data-table-footer__items-per-page'
+      assert_selector ".v-data-table-footer"
+      assert_selector ".v-data-table-footer__items-per-page"
     end
   end
 end

@@ -26,7 +26,7 @@ class Post < ApplicationRecord
   end
 
   def status
-    published? ? 'published' : 'draft'
+    published? ? "published" : "draft"
   end
 
   private

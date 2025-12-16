@@ -1,16 +1,16 @@
 class PostsController < ApplicationController
-  before_action :set_post, only: [:show, :edit, :update, :destroy, :publish, :unpublish]
+  before_action :set_post, only: [ :show, :edit, :update, :destroy, :publish, :unpublish ]
 
   def index
     posts = Post.all
 
     # Filtros
     posts = posts.where("title LIKE ?", "%#{params[:search]}%") if params[:search].present?
-    posts = posts.where(published: params[:status] == 'published') if params[:status].present? && params[:status] != 'all'
+    posts = posts.where(published: params[:status] == "published") if params[:status].present? && params[:status] != "all"
 
     # Ordenamiento
-    sort_column = %w[id title created_at].include?(params[:sort_by]) ? params[:sort_by] : 'created_at'
-    sort_direction = %w[asc desc].include?(params[:sort_direction]) ? params[:sort_direction] : 'desc'
+    sort_column = %w[id title created_at].include?(params[:sort_by]) ? params[:sort_by] : "created_at"
+    sort_direction = %w[asc desc].include?(params[:sort_direction]) ? params[:sort_direction] : "desc"
     posts = posts.order(sort_column => sort_direction)
 
     # Paginación manual simple
@@ -19,7 +19,7 @@ class PostsController < ApplicationController
     total = posts.count
     posts = posts.offset((page - 1) * per_page).limit(per_page)
 
-    render inertia: 'Posts/Index', props: {
+    render inertia: "Posts/Index", props: {
       posts: posts.map { |post| serialize_post(post) },
       pagination: {
         page: page,
@@ -28,23 +28,23 @@ class PostsController < ApplicationController
         total_pages: (total.to_f / per_page).ceil
       },
       filters: {
-        search: params[:search] || '',
-        status: params[:status] || 'all'
+        search: params[:search] || "",
+        status: params[:status] || "all"
       }
     }
   end
 
   def show
-    render inertia: 'Posts/Show', props: {
+    render inertia: "Posts/Show", props: {
       post: serialize_post(@post)
     }
   end
 
   def new
-    render inertia: 'Posts/New', props: {
+    render inertia: "Posts/New", props: {
       post: {
-        title: '',
-        body: '',
+        title: "",
+        body: "",
         published: false
       }
     }
@@ -54,9 +54,9 @@ class PostsController < ApplicationController
     @post = Post.new(post_params)
 
     if @post.save
-      redirect_to posts_path, notice: 'Post creado exitosamente.'
+      redirect_to posts_path, notice: "Post creado exitosamente."
     else
-      render inertia: 'Posts/New', props: {
+      render inertia: "Posts/New", props: {
         post: post_params,
         errors: @post.errors.messages
       }
@@ -64,16 +64,16 @@ class PostsController < ApplicationController
   end
 
   def edit
-    render inertia: 'Posts/Edit', props: {
+    render inertia: "Posts/Edit", props: {
       post: serialize_post(@post)
     }
   end
 
   def update
     if @post.update(post_params)
-      redirect_to posts_path, notice: 'Post actualizado exitosamente.'
+      redirect_to posts_path, notice: "Post actualizado exitosamente."
     else
-      render inertia: 'Posts/Edit', props: {
+      render inertia: "Posts/Edit", props: {
         post: serialize_post(@post).merge(post_params),
         errors: @post.errors.messages
       }
@@ -82,17 +82,17 @@ class PostsController < ApplicationController
 
   def destroy
     @post.destroy
-    redirect_to posts_path, notice: 'Post eliminado exitosamente.'
+    redirect_to posts_path, notice: "Post eliminado exitosamente."
   end
 
   def publish
     @post.publish!
-    redirect_to posts_path, notice: 'Post publicado exitosamente.'
+    redirect_to posts_path, notice: "Post publicado exitosamente."
   end
 
   def unpublish
     @post.unpublish!
-    redirect_to posts_path, notice: 'Post despublicado exitosamente.'
+    redirect_to posts_path, notice: "Post despublicado exitosamente."
   end
 
   private

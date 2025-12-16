@@ -1,5 +1,5 @@
 class PagesController < ApplicationController
   def vuetify_test
-    render inertia: 'VuetifyTest'
+    render inertia: "VuetifyTest"
   end
 end
