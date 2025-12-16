@@ -48,22 +48,46 @@ class NavigationDrawerTest < ApplicationSystemTestCase
     visit posts_path
 
     # El drawer debería estar visible inicialmente
-    assert_selector '[data-testid="nav-drawer"]', visible: true
+    drawer = find('[data-testid="nav-drawer"]')
 
-    # Hacer clic en el botón del menú para cerrar/abrir
+    # Verificar que el drawer está abierto (tiene la clase active)
+    assert drawer[:class].include?('v-navigation-drawer--active'),
+           "El drawer debería tener la clase 'active' al inicio"
+    assert drawer[:style].include?('translateX(0px)'),
+           "El drawer debería estar en posición translateX(0px) al inicio"
+
+    # Hacer clic en el botón del menú para cerrar
     find('[data-testid="nav-icon"]').click
 
-    # Dar tiempo para la animación
-    sleep 0.5
+    # Esperar a que la animación termine
+    sleep 1
+
+    # Verificar que el drawer está cerrado
+    drawer = find('[data-testid="nav-drawer"]', visible: :all)
+
+    # Verificar que NO tiene la clase active
+    refute drawer[:class].include?('v-navigation-drawer--active'),
+           "El drawer NO debería tener la clase 'active' cuando está cerrado"
+
+    # Verificar que se movió fuera de la pantalla (translateX negativo)
+    assert drawer[:style].include?('translateX(-'),
+           "El drawer debería estar fuera de la pantalla (translateX negativo) cuando está cerrado"
 
     # Hacer clic nuevamente para abrir
     find('[data-testid="nav-icon"]').click
 
-    sleep 0.5
+    # Esperar a que la animación termine
+    sleep 1
 
-    # Verificar que el drawer está visible
-    assert_selector '[data-testid="nav-drawer"]'
+    # Verificar que el drawer está abierto nuevamente
+    drawer = find('[data-testid="nav-drawer"]')
+
+    assert drawer[:class].include?('v-navigation-drawer--active'),
+           "El drawer debería tener la clase 'active' después de reabrirse"
+    assert drawer[:style].include?('translateX(0px)'),
+           "El drawer debería estar en posición translateX(0px) después de reabrirse"
   end
+
 
   test "navega a Posts desde el drawer" do
     visit "/pages/vuetify_test"

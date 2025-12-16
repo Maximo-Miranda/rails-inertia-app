@@ -320,20 +320,13 @@ class PostsTest < ApplicationSystemTestCase
       Post.create!(title: "Post paginado #{i}", body: "Contenido del post paginado número #{i}")
     end
 
-    sleep 2
-
     visit posts_path(per_page: 5)
-
-    sleep 2
 
     # Verificar que estamos en la primera página y hacer clic en siguiente
     within('[data-testid="posts-table"]') do
       assert_selector ".v-data-table-footer__pagination"
-      sleep 2
       find('.v-data-table-footer__pagination .v-btn[aria-label="Next page"]').click
     end
-
-    sleep 3
 
     # Esperar a que la URL se actualice con page=2
     assert_current_path(/page=2/, wait: 5)
