@@ -81,6 +81,10 @@ jobs:
 
   system-test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [firefox, chromium]
 
     # services:
     #  redis:
@@ -109,27 +113,28 @@ jobs:
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package.json', 'bun.lock') }}
+          key: playwright-${{ runner.os }}-${{ matrix.browser }}-${{ hashFiles('package.json', 'bun.lock') }}
           restore-keys: |
-            playwright-${{ runner.os }}-
+            playwright-${{ runner.os }}-${{ matrix.browser }}-
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: bunx playwright install --with-deps firefox
+        run: bunx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: bunx playwright install-deps firefox
+        run: bunx playwright install-deps ${{ matrix.browser }}
 
       - name: Pre-build Vite assets for tests
         env:
           RAILS_ENV: test
         run: bin/vite build --mode test
 
-      - name: Run System Tests
+      - name: Run System Tests (${{ matrix.browser }})
         env:
           RAILS_ENV: test
           HEADLESS: true
+          BROWSER: ${{ matrix.browser }}
           # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           # REDIS_URL: redis://localhost:6379/0
         run: bin/rails db:test:prepare test:system
@@ -138,6 +143,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: screenshots
+          name: screenshots-${{ matrix.browser }}
           path: ${{ github.workspace }}/tmp/screenshots
           if-no-files-found: ignore

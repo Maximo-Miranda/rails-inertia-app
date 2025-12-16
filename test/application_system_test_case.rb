@@ -21,9 +21,11 @@ end
 
 ensure_vite_built!
 
+BROWSER = ENV.fetch("BROWSER", "firefox").to_sym
+
 Capybara.register_driver(:playwright) do |app|
   Capybara::Playwright::Driver.new(app,
-    browser_type: :firefox,
+    browser_type: BROWSER,
     headless: ENV.fetch("HEADLESS", "true") == "true",
     playwright_cli_executable_path: "./node_modules/.bin/playwright"
   )
