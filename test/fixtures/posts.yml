@@ -1,0 +1,41 @@
+# Fixtures para tests de Posts
+
+published_post:
+  title: "Post publicado de prueba"
+  body: "Este es el contenido del post publicado. Tiene suficiente texto para pasar las validaciones."
+  published: true
+  published_at: <%= 2.days.ago %>
+  created_at: <%= 5.days.ago %>
+  updated_at: <%= 2.days.ago %>
+
+draft_post:
+  title: "Post borrador de prueba"
+  body: "Este es el contenido del post en borrador. También tiene suficiente texto."
+  published: false
+  published_at:
+  created_at: <%= 3.days.ago %>
+  updated_at: <%= 1.day.ago %>
+
+another_published:
+  title: "Otro post publicado"
+  body: "Contenido de otro post publicado para probar la lista y paginación."
+  published: true
+  published_at: <%= 1.day.ago %>
+  created_at: <%= 4.days.ago %>
+  updated_at: <%= 1.day.ago %>
+
+old_post:
+  title: "Post antiguo"
+  body: "Este es un post más antiguo para probar el ordenamiento por fecha."
+  published: true
+  published_at: <%= 10.days.ago %>
+  created_at: <%= 15.days.ago %>
+  updated_at: <%= 10.days.ago %>
+
+searchable_post:
+  title: "Tutorial de Vuetify"
+  body: "Este post contiene información sobre cómo usar Vuetify con Rails e Inertia."
+  published: true
+  published_at: <%= 1.hour.ago %>
+  created_at: <%= 2.days.ago %>
+  updated_at: <%= 1.hour.ago %>
