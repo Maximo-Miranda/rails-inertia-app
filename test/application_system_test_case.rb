@@ -3,6 +3,24 @@ require "capybara"
 require "capybara/minitest"
 require "capybara-playwright-driver"
 
+def ensure_vite_built!
+  cache_file = Rails.root.join("tmp/cache/vite/last-build-test.json")
+
+  vite_built = cache_file.exist? && begin
+    cache_data = JSON.parse(cache_file.read)
+    cache_data["success"] == true
+  rescue JSON::ParserError
+    false
+  end
+
+  unless vite_built
+    success = system("bin/vite build --mode test")
+    abort("Vite build failed!") unless success
+  end
+end
+
+ensure_vite_built!
+
 Capybara.register_driver(:playwright) do |app|
   Capybara::Playwright::Driver.new(app,
     browser_type: :firefox,
@@ -20,10 +38,8 @@ class ApplicationSystemTestCase < ActiveSupport::TestCase
   include Capybara::Minitest::Assertions
   include Rails.application.routes.url_helpers
 
-  # Cargar fixtures para los tests
   fixtures :all
 
-  # Limpiar la sesión después de cada test
   def teardown
     Capybara.reset_sessions!
   end
